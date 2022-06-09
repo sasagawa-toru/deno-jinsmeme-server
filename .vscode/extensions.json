@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "spadin.config-defaults",
+    "esbenp.prettier-vscode",
+    "editorconfig.editorconfig"
+  ]
+}
