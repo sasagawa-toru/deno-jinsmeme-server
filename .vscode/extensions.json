@@ -2,6 +2,7 @@
   "recommendations": [
     "spadin.config-defaults",
     "esbenp.prettier-vscode",
-    "editorconfig.editorconfig"
+    "editorconfig.editorconfig",
+    "denoland.vscode-deno"
   ]
 }
