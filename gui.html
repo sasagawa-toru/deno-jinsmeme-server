@@ -1,4 +1,36 @@
 <!DOCTYPE html>
 <html lang="ja">
-  hello
+  <head>
+    <style>
+      #console {
+        white-space: pre;
+        margin-bottom: 50px;
+      }
+      #bar {
+        width: 500px;
+        height: 30px;
+        background-color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="console"></div>
+    <div id="bar"></div>
+    <script type="module">
+      // TODO get URL from navigator
+      const socket = new WebSocket("ws://127.0.0.1:19999/gui-socket");
+
+      const consoleElm = document.getElementById("console");
+      const barElm = document.getElementById("bar");
+
+      socket.addEventListener("message", function (event) {
+        // console.log("Message from server ", event.data);
+        const data = JSON.parse(event.data);
+        const text = `yaw:${data.yaw}\npitch:${data.pitch}\nroll:${data.roll}`;
+        consoleElm.innerText = text;
+
+        bar.style.transform = `rotate(${-data.roll}deg)`;
+      });
+    </script>
+  </body>
 </html>
