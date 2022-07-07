@@ -6,6 +6,12 @@
         white-space: pre;
         margin-bottom: 50px;
       }
+      .transform-container {
+        width: 500px;
+        transform-style: preserve-3d;
+        perspective: 350px;
+        margin: 0 auto;
+      }
       #bar {
         width: 500px;
         height: 30px;
@@ -15,7 +21,9 @@
   </head>
   <body>
     <div id="console"></div>
-    <div id="bar"></div>
+    <div class="transform-container">
+      <div id="bar"></div>
+    </div>
     <script type="module">
       // TODO get URL from navigator
       const socket = new WebSocket("ws://127.0.0.1:19999/gui-socket");
@@ -26,10 +34,14 @@
       socket.addEventListener("message", function (event) {
         // console.log("Message from server ", event.data);
         const data = JSON.parse(event.data);
-        const text = `yaw:${data.yaw}\npitch:${data.pitch}\nroll:${data.roll}`;
+        let text = `yaw:${data.yaw}\npitch:${data.pitch}\nroll:${data.roll}\n`;
+        text += `eyeMoveUp:${data.eyeMoveUp}\neyeMoveRight:${data.eyeMoveRight}\neyeMoveDown:${data.eyeMoveDown}\neyeMoveLeft:${data.eyeMoveLeft}\n`;
         consoleElm.innerText = text;
 
-        bar.style.transform = `rotate(${-data.roll}deg)`;
+        // bar.style.transform = `rotateZ(${-data.roll}deg)`;
+        bar.style.transform = `rotateX(${-data.pitch}deg)`;
+        // bar.style.transform = `rotateY(${-data.yaw}deg)`;
+        // bar.style.transform = `rotate3d(${data.pitch}deg,${data.yaw}deg,${data.roll}deg)`;
       });
     </script>
   </body>
