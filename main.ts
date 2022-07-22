@@ -1,8 +1,6 @@
 import { serve } from "https://deno.land/std@0.142.0/http/server.ts";
 import { serveFile } from "https://deno.land/std@0.142.0/http/file_server.ts";
 
-import { handleMessage } from "./memedata.ts";
-
 const guiSockets: WebSocket[] = [];
 
 async function handler(req: Request): Promise<Response> {
@@ -17,7 +15,12 @@ async function handler(req: Request): Promise<Response> {
       } catch {
         return new Response("request isn't trying to upgrade to websocket.");
       }
-      socket.onmessage = handleMessage(guiSockets);
+      socket.onmessage = (msg: MessageEvent<unknown>) => {
+        const rawJson = msg.data as string;
+        const data = JSON.parse(rawJson);
+        console.log(`yaw:${data.yaw}, pitch:${data.pitch}, roll:${data.roll}`);
+        guiSockets.forEach((sock) => sock.send(rawJson));
+      };
       return response;
     }
 
