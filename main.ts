@@ -7,38 +7,48 @@ const guiSockets: WebSocket[] = [];
 
 async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
-  if (url.pathname === "/") {
-    let response, socket: WebSocket;
-    try {
-      ({ response, socket } = Deno.upgradeWebSocket(req));
-    } catch {
-      return new Response("request isn't trying to upgrade to websocket.");
+
+  switch (url.pathname) {
+    // Loggerアプリからの接続先(WebSocket)
+    case "/": {
+      let response, socket: WebSocket;
+      try {
+        ({ response, socket } = Deno.upgradeWebSocket(req));
+      } catch {
+        return new Response("request isn't trying to upgrade to websocket.");
+      }
+      socket.onmessage = handleMessage(guiSockets);
+      return response;
     }
-    // socket.onopen = () => console.log("socket opened");
-    socket.onmessage = handleMessage(guiSockets);
-    // socket.onerror = (e) => console.log("socket errored:", e);
-    // socket.onclose = () => console.log("socket closed");
-    return response;
-  } else if (url.pathname === "/gui") {
-    return await serveFile(req, "gui.html");
-  } else if (url.pathname === "/gui-socket") {
-    let response, socket: WebSocket;
-    try {
-      ({ response, socket } = Deno.upgradeWebSocket(req));
-    } catch {
-      return new Response("request isn't trying to upgrade to websocket.");
+
+    // HTML画面を表示(staticコンテンツ)
+    case "/gui": {
+      return await serveFile(req, "gui.html");
     }
-    // socket.onopen = () => console.log("socket opened");
-    // socket.onmessage = handleMessage;
-    // socket.onerror = (e) => console.log("socket errored:", e);
-    socket.onclose = () => {
-      const idx = guiSockets.findIndex((x) => x === socket);
-      guiSockets.splice(idx, 1);
-    };
-    guiSockets.push(socket);
-    return response;
-  } else {
-    return new Response("Not Found", { status: 404 });
+
+    // HTML画面からの接続先(WebSocket)
+    case "/gui-socket": {
+      let response, socket: WebSocket;
+      try {
+        ({ response, socket } = Deno.upgradeWebSocket(req));
+      } catch {
+        return new Response("request isn't trying to upgrade to websocket.");
+      }
+      socket.onclose = () => {
+        const idx = guiSockets.findIndex((x) => x === socket);
+        guiSockets.splice(idx, 1);
+      };
+      guiSockets.push(socket);
+      return response;
+    }
+
+    // 画像表示(staticコンテンツ)
+    case "/face.png": {
+      return await serveFile(req, "face.png");
+    }
+
+    default:
+      return new Response("Not Found", { status: 404 });
   }
 }
 
